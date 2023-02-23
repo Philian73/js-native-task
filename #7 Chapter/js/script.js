@@ -11,7 +11,6 @@ var remainingLetters = randomWord[0].length
 var attemptsCount = 6
 var userCorrectLetters = []
 
-
 for (var i = 0; i < randomWord[0].length; i++) {
 	answerArr[i] = "_"
 }
@@ -42,7 +41,6 @@ while (remainingLetters > 0 && attemptsCount > 0) {
 		}
 	}
 }
-
 
 if ((answerArr.join("")) === randomWord[0]) {
 	alert(`Молодец! Ты отгадал слово "${randomWord[0][0].toUpperCase() + randomWord[0].slice(1)}".`)
