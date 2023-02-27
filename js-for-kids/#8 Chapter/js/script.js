@@ -119,30 +119,26 @@ function getPlayerLetter() {
  */
 function updateGameState(playerLetter, randomWord, answerArr) {
 	// Изначально угаданных букв 0
-	var test = 0
-	// Угадана буква или нет, изначально false
-	var usedCorrectLetter = false
+	var usedCorrectLetter = 0
 
 	// Пушим все введённые игроком буквы в массив
 	allUsedLetters.push(playerLetter)
 
 	for (var i = 0; i < randomWord[0].length; i++) {
 		if (randomWord[0][i] === playerLetter && answerArr[i] === "_") {
-			// уменьшаем остаток букв, если буква была угадана
-			remainingLetters--
 			// заменяем "_" на введённую игроком букву
 			answerArr[i] = playerLetter
-			// Заменяем на true, так как буква была угадана.
-			usedCorrectLetter = true
+			// Буква угадана, меняем значение
+			usedCorrectLetter++
 		}
 	}
 
 	// Если буква не была угадана, уменьшаем кол-во попыток
-	if (!usedCorrectLetter) {
+	if (usedCorrectLetter === 0) {
 		attemptsCount--
 	}
 
-	return test++
+	return usedCorrectLetter
 }
 
 /**
