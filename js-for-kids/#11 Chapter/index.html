@@ -10,13 +10,19 @@
 
 <body>
 	<div class="wrapper">
-		<h1>Найди клад!</h1>
-		<figure>
-			<img id="map" src="img/treasuremap.webp">
-			<figcaption>
-				Подсказка: <span id="distance">0</span>
-			</figcaption>
-		</figure>
+		<main>
+			<h1>Найди клад!</h1>
+			<section id="game">
+				<img id="map" src="img/treasuremap.webp">
+				<div>
+					<div>
+						<p>Подсказка: <span id="distance">Тыкни</span></p>
+						<p>Осталось попыток: <span id="attempts"></span></p>
+					</div>
+					<button id="admin" type="button">Режим админа</button>
+				</div>
+			</section>
+		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 	<script src="js/script.js"></script>

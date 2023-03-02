@@ -64,21 +64,67 @@ h6 {
 	font-size: inherit;
 }
 
+.wrapper {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
 h1 {
 	font-size: 3rem;
 	font-weight: 700;
+	text-align: center;
 }
 
-figcaption {
+p {
 	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-	font-size: 1.2rem;
+	font-size: 1.5rem;
 }
 
-figcaption span {
+p span {
 	color: red;
 }
 
 img {
-	width: 400px;
-	height: 400px;
+	width: 800px;
+	height: 800px;
+}
+
+section {
+	position: relative;
+	margin: 0 0 1rem 0;
+}
+
+section>span {
+	display: none;
+	pointer-events: none;
+	position: absolute;
+	width: 0.5rem;
+	height: 0.5rem;
+	border: 1px solid black;
+	border-radius: 50%;
+	overflow: hidden;
+	background-color: red;
+}
+
+section>div {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+button {
+	color: #232323;
+	background: transparent;
+	border: 1px solid #232323;
+	position: relative;
+	font-size: 16px;
+	letter-spacing: .3em;
+	font-family: 'Montserrat', sans-serif;
+	padding: 0.5em 1.1em 0.5em 1.1em;
+	transition: .2s ease-in-out;
+	cursor: pointer;
+}
+
+button:disabled {
+	opacity: 0.5;
 }
