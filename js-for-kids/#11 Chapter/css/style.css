@@ -125,6 +125,11 @@ button {
 	cursor: pointer;
 }
 
+button:hover:not(:disabled) {
+	background-color: #232323;
+	color: #fff;
+}
+
 button:disabled {
 	opacity: 0.5;
 }
