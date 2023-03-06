@@ -7,7 +7,17 @@ var mysteryPoints = [[50, 50], [50, 100], [25, 120], [100, 50],
 
 // drawSnowman(240, 180)
 // drawPoints(points)
-drawPoints(mysteryPoints)
+// drawPoints(mysteryPoints)
+$("#canvas").mousedown(function () {
+	$(this).mousemove(function (e) {
+		circle(e.offsetX, e.offsetY, 3, true)
+	})
+	$(this).click(function (e) {
+		circle(e.offsetX, e.offsetY, 3, true)
+	})
+}).mouseup(function () {
+	$(this).off('mousemove')
+})
 
 
 
@@ -70,13 +80,17 @@ function drawSnowman(x, y) {
  * Рисует по массиву с координатами точек
  * @date 3/6/2023 - 3:38:42 AM
  *
- * @param {[x, y]} arr 
+ * @param {[[x, y], [x, y]...]} arr 
  */
 function drawPoints(arr) {
+	// начинаем путь
 	ctx.beginPath()
+	// начальная точка
 	ctx.moveTo(arr[0][0], arr[0][1])
+	// проводим все точки после первой которые есть в массиве
 	for (var i = 1; i < arr.length; i++) {
 		ctx.lineTo(arr[i][0], arr[i][1])
 	}
+	// рисуем
 	ctx.stroke()
 }
