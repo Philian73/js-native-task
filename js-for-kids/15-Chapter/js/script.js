@@ -16,17 +16,39 @@ var keyActions = {
 	37: "left", //влево
 	38: "up", //вверх
 	39: "right", //вправо
-	40: "down" //вниз
+	40: "down", //вниз
+	67: "size down", //c
+	86: "size up", //v
+	88: "speed up", //x
+	90: "speed down", //z
 }
+// создаём объект скоростей в зависимости от кода клавиши (1-9)
+var speeds = {
+	49: 1,
+	50: 2,
+	51: 3,
+	52: 4,
+	53: 5,
+	54: 6,
+	55: 7,
+	56: 8,
+	57: 9,
+}
+
+// создаём пустой объект, который будет запоминать нажатие клавиши
+var keyStates = {}
 
 // Вешаем обработчик нажатия клавиш
 $("body").keydown(function (e) {
-	// присваиваем в переменную ключ-значение с объекта keyAcrions
-	// в зависимости от нажатой клавиши (e.keyCode)
+	// заносим в переменную значение ключа (совпадает с keyCode)
 	var direction = keyActions[e.keyCode]
-	// Вызываем метод с прототипа, который в зависимости
-	// от переданной директории, меняет направление мяча
-	ball.setDirection(direction)
+	// заносим в переменную значение ключа (совпадает с keyCode)
+	var speed = speeds[e.keyCode]
+
+	// задаем директорию мячу
+	ball.doAction(direction)
+	// задаем множитель скорости
+	ball.setSpeed(speed)
 })
 
 setInterval(function () {
@@ -40,78 +62,75 @@ setInterval(function () {
 	ctx.strokeRect(0, 0, width, height)
 }, 30)
 
-// Создаём конструтора "Мяча"
+// Создаём конструтор "Мяча"
 function Ball() {
 	this.x = width / 2
 	this.y = height / 2
+	this.speed = 1
 	this.xSpeed = 5
 	this.ySpeed = 0
+	this.size = 10
 }
 // создаём метод отрисовки мяча
 Ball.prototype.draw = function () {
 	// рисуем мяч
-	drawCircle(this.x, this.y, 10, true)
+	drawCircle(this.x, this.y, this.size, true)
 }
 // создаём метод перемещения мяча
 Ball.prototype.move = function () {
 	// координаты перемещения по горизонтали равны скорости по горизонтали
-	this.x += this.xSpeed
+	this.x += this.xSpeed * this.speed
 	// координаты перемещения по вертикали равны скорости по вертикали
-	this.y += this.ySpeed
+	this.y += this.ySpeed * this.speed
 
-	// если координаты по горизонтали < 0
-	if (this.x < 0) {
-		// меняем координаты на максимальную ширину холста
-		// то бишь перемещаем мяч в правую сторону холста
-		this.x = width
-		// если же координаты больше ширины холста
-	} else if (this.x > width) {
-		// меняем на 0, то бишь перемещаем мяч в левую сторону холста
-		this.x = 0
-	}
-
-	// если координаты по вертикали < 0
-	if (this.y < 0) {
-		// меняем координаты на максимальную высоту холста
-		this.y = height
-		// если же координаты больше высоты холста
-	} else if (this.y > height) {
-		// меняем на 0, то бишь перемещаем мяч вверх холста
-		this.y = 0
+	if (this.x < 0 || this.x > width) {
+		this.xSpeed = -this.xSpeed
+	} else if (this.y < 0 || this.y > height) {
+		this.ySpeed = -this.ySpeed
 	}
 }
 // создаём метод установки директории
-Ball.prototype.setDirection = function (direction) {
-	// если передана директория "up"
-	if (direction === "up") {
-		// меняем скорость по горизонтали на 0
-		this.xSpeed = 0
-		// меняем скорость по вертикали на -5 (вверх)
-		this.ySpeed = -5
-		// если же передана директория "down"
-	} else if (direction === "down") {
-		// меняем скорость по горизонтали на 0
-		this.xSpeed = 0
-		// меняем скорость по вертикали на 5 (вниз)
-		this.ySpeed = 5
-		// если же передана директория "left"
-	} else if (direction === "left") {
-		// меняем скорость по горизонтали на -5 (влево)
-		this.xSpeed = -5
-		// меняем скорость по вертикали на 0
-		this.ySpeed = 0
-		// если же передана директория "right"
-	} else if (direction === "right") {
-		// меняем скорость по горизонтали на 5 (вправо)
-		this.xSpeed = 5
-		// меняем скорость по вертикали на 0
-		this.ySpeed = 0
-		// Если передана директория "stop"
-	} else if (direction === "stop") {
-		// меняем скорость по горизонтали на 0
-		this.xSpeed = 0
-		// меняем скорость по вертикали на 0
-		this.ySpeed = 0
+Ball.prototype.doAction = function (direction) {
+	switch (direction) {
+		case "up":
+			this.xSpeed = 0
+			this.ySpeed = -5
+			break
+		case "down":
+			this.xSpeed = 0
+			this.ySpeed = 5
+			break
+		case "left":
+			this.xSpeed = -5
+			this.ySpeed = 0
+			break
+		case "right":
+			this.xSpeed = 5
+			this.ySpeed = 0
+			break
+		case "stop":
+			this.xSpeed = 0
+			this.ySpeed = 0
+			break
+		case "speed up":
+			if (this.speed < 9) this.speed++
+			break
+		case "speed down":
+			if (this.speed > 1) this.speed--
+			break
+		case "size up":
+			if (this.size < 30) this.size++
+			break
+		case "size down":
+			if (this.size > 10) this.size--
+			break
+	}
+}
+Ball.prototype.setSpeed = function (speed) {
+	// если клавиша есть в объекте (не undefined)
+	if (speed !== undefined) {
+		// меняем множитель скорости
+		this.speed = speed
 	}
 }
 
