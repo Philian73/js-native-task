@@ -42,11 +42,13 @@ var directions = {
 	ArrowDown: "down",
 	KeyS: "down"
 }
-// нажатые клавиши (только которые есть в directions)
+// нажатые клавиши (только те которые есть в directions)
 var keyPressed = {}
 
 // обработчик нажатия клавиш
 document.addEventListener("keydown", function (e) {
+	// проверяем что нажатая клавиша существует в объекте directions
+	// и что у нажатой клавиши стоит флаг false
 	if (directions.hasOwnProperty(e.code) && !keyPressed[e.code]) {
 		// новая траектория
 		var newDirection = directions[e.code]
@@ -58,7 +60,7 @@ document.addEventListener("keydown", function (e) {
 	}
 })
 document.addEventListener("keyup", function (e) {
-	if (directions.hasOwnProperty(e.code)) {
+	if (directions.hasOwnProperty(e.code) && keyPressed[e.code]) {
 		// клавиша отпущена, ставим ей флаг false
 		keyPressed[e.code] = false
 	}
@@ -195,6 +197,18 @@ Shake.prototype.checkCollision = function (head) {
 	// метод возвращает в итоге true если какая-то проверка прошла
 	// либо false если ни одна проверка не прошла
 	return wallCollision || selfCollision
+}
+Shake.prototype.setDirection = function (newDirection) {
+	var validDirections = {
+		"left": ["up", "down"],
+		"right": ["up", "down"],
+		"up": ["left", "right"],
+		"down": ["left", "right"],
+	}
+
+	if (validDirections[this.direction].includes(newDirection)) {
+		this.nextDirection = newDirection
+	}
 }
 var shake = new Shake()
 
