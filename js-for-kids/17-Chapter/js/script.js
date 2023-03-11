@@ -49,16 +49,12 @@ class Shake {
 		this.nextDirection = "right"
 	}
 	draw() {
-		for (let segment of this.segments) {
-			// если это первый сегмент (голова)
-			if (this.segments[0]) {
-				// рисую её красным цветом
-				this.segments[0].drawSquare("Red")
-			}
-
-			// рисую сегменты тела зелёным
-			segment.drawSquare("green")
-		}
+		this.segments.forEach((segment, i) => {
+			// если это первый элемент (голова), рисуем ее красной
+			if (i === 0) segment.drawSquare("red")
+			// все остальные элементы (сегменты змейки) зелёным
+			else segment.drawSquare("green")
+		})
 	}
 	move() {
 		// текущая голова змеи
@@ -132,12 +128,12 @@ class Shake {
 
 		// проверка на то, находится ли голова змеи
 		// в каком-нибудь из сегментов змеи
-		for (let segment of this.segments) {
+		this.segments.forEach(segment => {
 			if (head.equal(segment)) {
 				// если да, меняем значение на true (СТОЛКНУЛАСЬ)
 				selfCollision = true
 			}
-		}
+		})
 
 		// метод возвращает в итоге true если какая-то проверка прошла
 		// либо false если ни одна проверка не прошла
@@ -178,12 +174,12 @@ class Apple {
 
 		// дополнительная проверка, если яблоко сгенерировалось
 		// в теле змеи, то заново запускаем этот медот.
-		for (let segment of occupiedBlocks) {
+		occupiedBlocks.forEach(segment => {
 			if (this.position.equal(segment)) {
 				this.move(occupiedBlocks)
 				return
 			}
-		}
+		})
 	}
 }
 
