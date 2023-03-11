@@ -6,9 +6,9 @@ class Block {
 	}
 	drawSquare(color) {
 		// вычисляем координаты по горизонтали
-		var x = this.col * blockSize
+		const x = this.col * blockSize
 		// вычисляем координаты по вертикали
-		var y = this.row * blockSize
+		const y = this.row * blockSize
 
 		// задаём цвет заливки
 		ctx.fillStyle = color
@@ -17,9 +17,9 @@ class Block {
 	}
 	drawCircle(color) {
 		// координаты центра окружности по горизонтали
-		var centerX = this.col * blockSize + blockSize / 2
+		const centerX = this.col * blockSize + blockSize / 2
 		// координаты центра окружности по вертикали
-		var centerY = this.row * blockSize + blockSize / 2
+		const centerY = this.row * blockSize + blockSize / 2
 
 		// задаём цвет заливки
 		ctx.fillStyle = color
@@ -49,7 +49,7 @@ class Shake {
 		this.nextDirection = "right"
 	}
 	draw() {
-		for (var segment of this.segments) {
+		for (let segment of this.segments) {
 			// если это первый сегмент (голова)
 			if (this.segments[0]) {
 				// рисую её красным цветом
@@ -62,9 +62,9 @@ class Shake {
 	}
 	move() {
 		// текущая голова змеи
-		var head = this.segments[0]
+		const head = this.segments[0]
 		// новая голова змеи
-		var newHead
+		let newHead
 
 		// текущее направление меняется на следующее направление
 		this.direction = this.nextDirection
@@ -95,14 +95,13 @@ class Shake {
 
 		// если новая голова соответсвует позиции яблока
 		if (newHead.equal(apple.position)) {
-			// увеличиваем счёт игрока
-			playerScore++
-
 			// проверка, чтобы скорость анимации не была супер-быстрой
-			if (animationTime > 30) {
-				animationTime -= 1
+			if (setAnimationTime > 30) {
+				setAnimationTime -= 1
 			}
 
+			// увеличиваем счёт игрока
+			playerScore++
 			// перемещаем яблоко в случайное место, не занятое телом змейки
 			apple.move(this.segments)
 		} else {
@@ -112,27 +111,28 @@ class Shake {
 	}
 	checkCollision(head) {
 		// true если змейка столкнётся с левой стеной
-		var leftCollision = (head.col === 0)
+		const leftCollision = (head.col === 0)
 		// true если змейка столкнётся с верхней стеной
-		var topCollision = (head.row === 0)
+		const topCollision = (head.row === 0)
 		// true если змейка столкнётся с правой стеной
-		var rightCollision = (head.col === widthInBlocks - 1)
+		const rightCollision = (head.col === widthInBlocks - 1)
 		// true если змейка столкнётся с нижней стеной
-		var bottomCollision = (head.row === heightInBlocks - 1)
+		const bottomCollision = (head.row === heightInBlocks - 1)
 
 		// столкнулась ли змейка с какой-нибудь из СТЕНОК
-		var wallCollision = leftCollision ||
+		const wallCollision =
+			leftCollision ||
 			topCollision ||
 			rightCollision ||
 			bottomCollision
 
 		// столкнулась ли змейка с собственным телом
 		// изначально false
-		var selfCollision = false
+		let selfCollision = false
 
 		// проверка на то, находится ли голова змеи
 		// в каком-нибудь из сегментов змеи
-		for (var segment of this.segments) {
+		for (let segment of this.segments) {
 			if (head.equal(segment)) {
 				// если да, меняем значение на true (СТОЛКНУЛАСЬ)
 				selfCollision = true
@@ -145,7 +145,7 @@ class Shake {
 	}
 	setDirection(newDirection) {
 		// объект с допустимой сменой траектории
-		var validDirections = {
+		const validDirections = {
 			"left": ["up", "down"],
 			"right": ["up", "down"],
 			"up": ["left", "right"],
@@ -170,15 +170,15 @@ class Apple {
 	}
 	move(occupiedBlocks) {
 		// случайная колонка
-		var randomCol = Math.floor(Math.random() * (widthInBlocks - 2) + 1)
+		const randomCol = Math.floor(Math.random() * (widthInBlocks - 2) + 1)
 		// случайный ряд
-		var randomRow = Math.floor(Math.random() * (heightInBlocks - 2) + 1)
+		const randomRow = Math.floor(Math.random() * (heightInBlocks - 2) + 1)
 
 		this.position = new Block(randomCol, randomRow)
 
 		// дополнительная проверка, если яблоко сгенерировалось
 		// в теле змеи, то заново запускаем этот медот.
-		for (var segment of occupiedBlocks) {
+		for (let segment of occupiedBlocks) {
 			if (this.position.equal(segment)) {
 				this.move(occupiedBlocks)
 				return
@@ -188,35 +188,35 @@ class Apple {
 }
 
 // находим элемент с id="canvas"
-var canvas = document.querySelector("#canvas")
+const canvas = document.querySelector("#canvas")
 // задаем контекст 2д и присваиваем в переменную ctx
-var ctx = canvas.getContext("2d")
+const ctx = canvas.getContext("2d")
 // присваиваем ширину холста в переменную
-var canvasWidth = canvas.width
+const canvasWidth = canvas.width
 // присваиваем высоту холста в переменную
-var canvasHeight = canvas.height
+const canvasHeight = canvas.height
 // задаём размер одной ячейки
-var blockSize = 20
-var widthInBlocks = canvasWidth / blockSize
-var heightInBlocks = canvasHeight / blockSize
+const blockSize = 20
+const widthInBlocks = canvasWidth / blockSize
+const heightInBlocks = canvasHeight / blockSize
 // размер шрифта на холсте
-var canvasFont = canvasHeight / 20
+const canvasFont = canvasHeight / 20
 
-// Создаём змею
-var shake = new Shake()
-// Создаём яблоко
-var apple = new Apple()
+// Переменая будет конструктором змеи после запуска игры
+let shake
+// Переменная будет конструктором яблока после запуска игры
+let apple
 
 // изначальный счёт игрока
-var playerScore = 0
+let playerScore = 0
 // рекорд игрока
-var playerRecord = 0
+let playerRecord = 0
 // скорость анимации (в данном случае это скорость змейки)
-var animationTime = 100
-var setAnimationTime = animationTime
+const animationTime = 100
+let setAnimationTime = animationTime
 
 // траектории
-var directions = {
+const directions = {
 	ArrowLeft: "left",
 	KeyA: "left",
 	ArrowUp: "up",
@@ -228,11 +228,11 @@ var directions = {
 }
 
 // нажатые клавиши (только те которые есть в directions)
-var keyPressed = {}
+const keyPressed = {}
 
 // Стартуем игру
-var gameStarted = true
-gameLoop()
+let gameStarted
+startGame()
 
 // обработчики событй
 document.addEventListener("keydown", function (e) {
@@ -240,13 +240,14 @@ document.addEventListener("keydown", function (e) {
 	// и что у нажатой клавиши стоит флаг false
 	if (directions.hasOwnProperty(e.code) && !keyPressed[e.code]) {
 		// новая траектория
-		var newDirection = directions[e.code]
+		const newDirection = directions[e.code]
 
 		// устанавливаем флаг true нажатой клавише
 		keyPressed[e.code] = true
 		// устанавливаем змейке новую траекторию
 		shake.setDirection(newDirection)
 
+		// если игра не запущена и нажимаем клавишу - запускаем игру
 		if (!gameStarted) {
 			startGame()
 		}
@@ -333,11 +334,10 @@ function drawScore() {
  * 4. Рисует змейку
  * 5. Рисует яблоко
  * 5. Рисует границу
- * 6. Перезапускает саму себя каждые **animationTime** миллесекунд
+ * 6. Перезапускает саму себя каждые **setAnimationTime** миллесекунд
  * @date 11.03.2023 - 03:29:44
  */
 function gameLoop() {
-	if (!gameStarted) return
 	// очищаем холст
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 	// нарисовать счёт
@@ -350,8 +350,8 @@ function gameLoop() {
 	apple.draw()
 	// нарисовать границу холста
 	drawBorder()
-	// функция перезапускается каждые animationTime миллисекунд
-	setTimeout(gameLoop, animationTime)
+	// функция перезапускается каждые setAnimationTime миллисекунд
+	if (gameStarted) setTimeout(gameLoop, setAnimationTime)
 }
 
 /**
@@ -389,23 +389,24 @@ function gameOver() {
  * @date 11.03.2023 - 08:13:07
  */
 function startGame() {
-	// Создаём новую змею
-	shake = new Shake();
-	// Создаём новое яблоко
-	apple = new Apple()
-
 	// если текущий счёт игрока больше чем текущий рекорд
 	if (playerScore > playerRecord) {
 		// устанавливаем новый рекорд, равный счёту игрока
 		playerRecord = playerScore
 	}
 
+	// Создаём новую змею
+	shake = new Shake();
+	// Создаём новое яблоко
+	apple = new Apple()
+
 	// восстанавливаем скорость
-	animationTime = setAnimationTime
+	setAnimationTime = animationTime
 	// обнуляем счёт игрока
 	playerScore = 0
+
 	// игра начата
 	gameStarted = true
-	// запускаем игру
+	// запускаем анимацию
 	gameLoop()
 }
