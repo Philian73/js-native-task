@@ -1,3 +1,192 @@
+// Конструктор ячейки
+class Block {
+	constructor(col, row) {
+		this.col = col
+		this.row = row
+	}
+	drawSquare(color) {
+		// вычисляем координаты по горизонтали
+		var x = this.col * blockSize
+		// вычисляем координаты по вертикали
+		var y = this.row * blockSize
+
+		// задаём цвет заливки
+		ctx.fillStyle = color
+		// рисуем квадрат
+		ctx.fillRect(x, y, blockSize, blockSize)
+	}
+	drawCircle(color) {
+		// координаты центра окружности по горизонтали
+		var centerX = this.col * blockSize + blockSize / 2
+		// координаты центра окружности по вертикали
+		var centerY = this.row * blockSize + blockSize / 2
+
+		// задаём цвет заливки
+		ctx.fillStyle = color
+		// рисуем окружность
+		drawCircle(centerX, centerY, blockSize / 2, true)
+	}
+	equal(otherBlock) {
+		// возвращаем true или false в зависимости от того
+		// совпадают ли координаты блока с другим блоком
+		return this.col === otherBlock.col && this.row === otherBlock.row
+	}
+}
+
+// Конструктор змеи
+class Shake {
+	constructor() {
+		// массив сегментов змейки
+		this.segments = [
+			new Block(7, 5),
+			new Block(6, 5),
+			new Block(5, 5),
+		]
+
+		// текущее направление
+		this.direction = "right"
+		// следующее направление
+		this.nextDirection = "right"
+	}
+	draw() {
+		for (var segment of this.segments) {
+			// если это первый сегмент (голова)
+			if (this.segments[0]) {
+				// рисую её красным цветом
+				this.segments[0].drawSquare("Red")
+			}
+
+			// рисую сегменты тела зелёным
+			segment.drawSquare("green")
+		}
+	}
+	move() {
+		// текущая голова змеи
+		var head = this.segments[0]
+		// новая голова змеи
+		var newHead
+
+		// текущее направление меняется на следующее направление
+		this.direction = this.nextDirection
+
+		switch (this.direction) {
+			case "right":
+				newHead = new Block(head.col + 1, head.row)
+				break
+			case "down":
+				newHead = new Block(head.col, head.row + 1)
+				break
+			case "left":
+				newHead = new Block(head.col - 1, head.row)
+				break
+			case "up":
+				newHead = new Block(head.col, head.row - 1)
+				break
+		}
+
+		// если змея врезалась в границу или свой хост
+		if (this.checkCollision(newHead)) {
+			gameOver()
+			return
+		}
+
+		// добавляем новую голову в начало массива
+		this.segments.unshift(newHead)
+
+		// если новая голова соответсвует позиции яблока
+		if (newHead.equal(apple.position)) {
+			// увеличиваем счёт игрока
+			playerScore++
+
+			// проверка, чтобы скорость анимации не была супер-быстрой
+			if (animationTime > 30) {
+				animationTime -= 1
+			}
+
+			// перемещаем яблоко в случайное место, не занятое телом змейки
+			apple.move(this.segments)
+		} else {
+			// иначе удаляем последнюю часть хвоста
+			this.segments.pop()
+		}
+	}
+	checkCollision(head) {
+		// true если змейка столкнётся с левой стеной
+		var leftCollision = (head.col === 0)
+		// true если змейка столкнётся с верхней стеной
+		var topCollision = (head.row === 0)
+		// true если змейка столкнётся с правой стеной
+		var rightCollision = (head.col === widthInBlocks - 1)
+		// true если змейка столкнётся с нижней стеной
+		var bottomCollision = (head.row === heightInBlocks - 1)
+
+		// столкнулась ли змейка с какой-нибудь из СТЕНОК
+		var wallCollision = leftCollision ||
+			topCollision ||
+			rightCollision ||
+			bottomCollision
+
+		// столкнулась ли змейка с собственным телом
+		// изначально false
+		var selfCollision = false
+
+		// проверка на то, находится ли голова змеи
+		// в каком-нибудь из сегментов змеи
+		for (var segment of this.segments) {
+			if (head.equal(segment)) {
+				// если да, меняем значение на true (СТОЛКНУЛАСЬ)
+				selfCollision = true
+			}
+		}
+
+		// метод возвращает в итоге true если какая-то проверка прошла
+		// либо false если ни одна проверка не прошла
+		return wallCollision || selfCollision
+	}
+	setDirection(newDirection) {
+		// объект с допустимой сменой траектории
+		var validDirections = {
+			"left": ["up", "down"],
+			"right": ["up", "down"],
+			"up": ["left", "right"],
+			"down": ["left", "right"],
+		}
+
+		// если в свойстве текущей траектории в значении-массиве есть новая траектория
+		if (validDirections[this.direction].includes(newDirection)) {
+			// устанавливаем следующую траекторию
+			this.nextDirection = newDirection
+		}
+	}
+}
+
+// Конструктор яблока
+class Apple {
+	constructor() {
+		this.position = new Block(10, 10)
+	}
+	draw() {
+		this.position.drawCircle("LimeGreen")
+	}
+	move(occupiedBlocks) {
+		// случайная колонка
+		var randomCol = Math.floor(Math.random() * (widthInBlocks - 2) + 1)
+		// случайный ряд
+		var randomRow = Math.floor(Math.random() * (heightInBlocks - 2) + 1)
+
+		this.position = new Block(randomCol, randomRow)
+
+		// дополнительная проверка, если яблоко сгенерировалось
+		// в теле змеи, то заново запускаем этот медот.
+		for (var segment of occupiedBlocks) {
+			if (this.position.equal(segment)) {
+				this.move(occupiedBlocks)
+				return
+			}
+		}
+	}
+}
+
 // находим элемент с id="canvas"
 var canvas = document.querySelector("#canvas")
 // задаем контекст 2д и присваиваем в переменную ctx
@@ -7,29 +196,24 @@ var canvasWidth = canvas.width
 // присваиваем высоту холста в переменную
 var canvasHeight = canvas.height
 // задаём размер одной ячейки
-var blockSize = 10
+var blockSize = 20
 var widthInBlocks = canvasWidth / blockSize
 var heightInBlocks = canvasHeight / blockSize
 // размер шрифта на холсте
 var canvasFont = canvasHeight / 20
-// Изначальный счёт игрока
-var playerScore = 0
 
-// Каждые 100 миллисекунд
-var intervalId = setInterval(function () {
-	// очищаем холст
-	ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-	// нарисовать счёт
-	drawScore()
-	// текущее направление змеи
-	// shake.move()
-	// нарисовать змею
-	shake.draw()
-	// нарисовать яблоко
-	// apple.draw()
-	// нарисовать границу холста
-	drawBorder()
-}, 100)
+// Создаём змею
+var shake = new Shake()
+// Создаём яблоко
+var apple = new Apple()
+
+// изначальный счёт игрока
+var playerScore = 0
+// рекорд игрока
+var playerRecord = 0
+// скорость анимации (в данном случае это скорость змейки)
+var animationTime = 100
+var setAnimationTime = animationTime
 
 // траектории
 var directions = {
@@ -42,10 +226,15 @@ var directions = {
 	ArrowDown: "down",
 	KeyS: "down"
 }
+
 // нажатые клавиши (только те которые есть в directions)
 var keyPressed = {}
 
-// обработчик нажатия клавиш
+// Стартуем игру
+var gameStarted = true
+gameLoop()
+
+// обработчики событй
 document.addEventListener("keydown", function (e) {
 	// проверяем что нажатая клавиша существует в объекте directions
 	// и что у нажатой клавиши стоит флаг false
@@ -57,6 +246,10 @@ document.addEventListener("keydown", function (e) {
 		keyPressed[e.code] = true
 		// устанавливаем змейке новую траекторию
 		shake.setDirection(newDirection)
+
+		if (!gameStarted) {
+			startGame()
+		}
 	}
 })
 document.addEventListener("keyup", function (e) {
@@ -65,163 +258,17 @@ document.addEventListener("keyup", function (e) {
 		keyPressed[e.code] = false
 	}
 })
-
-
-// Конструктор ячейки
-function Block(col, row) {
-	this.col = col
-	this.row = row
-}
-Block.prototype.drawSquare = function (color) {
-	// вычисляем координаты по горизонтали
-	var x = this.col * blockSize
-	// вычисляем координаты по вертикали
-	var y = this.row * blockSize
-
-	// задаём цвет заливки
-	ctx.fillStyle = color
-	// рисуем квадрат
-	ctx.fillRect(x, y, blockSize, blockSize)
-}
-Block.prototype.drawCircle = function (color) {
-	// координаты центра окружности по горизонтали
-	var centerX = this.col * blockSize + blockSize / 2
-	// координаты центра окружности по вертикали
-	var centerY = this.row * blockSize + blockSize / 2
-
-	// задаём цвет заливки
-	ctx.fillStyle = color
-	// рисуем окружность
-	drawCircle(centerX, centerY, blockSize / 2, true)
-}
-Block.prototype.equal = function (otherBlock) {
-	// возвращаем true или false в зависимости от того
-	// совпадают ли координаты блока с другим блоком
-	return this.col === otherBlock.col && this.row === otherBlock.row
-}
-
-// Конструктор змеи
-function Shake() {
-	// массив сегментов змейки
-	this.segments = [
-		new Block(7, 5),
-		new Block(6, 5),
-		new Block(5, 5),
-	]
-
-	// текущее направление
-	this.direction = "right"
-	// следующее направление
-	this.nextDirection = "right"
-}
-Shake.prototype.draw = function () {
-	for (var segment of this.segments) {
-		// рисую каждый сегмент змеи синим цветом
-		segment.drawSquare("Blue")
+document.addEventListener("click", function (e) {
+	if (!gameStarted) {
+		startGame()
 	}
-}
-Shake.prototype.move = function () {
-	// текущая голова змеи
-	var head = this.segments[0]
-	// новая голова змеи
-	var newHead
-
-	// текущее направление меняется на следующее направление
-	this.direction = this.nextDirection
-
-	switch (this.direction) {
-		case "right":
-			newHead = new Block(head.col + 1, head.row)
-			break
-		case "down":
-			newHead = new Block(head.col, head.row + 1)
-			break
-		case "left":
-			newHead = new Block(head.col - 1, head.row)
-			break
-		case "up":
-			newHead = new Block(head.col, head.row - 1)
-			break
-	}
-
-	// если змея врезалась в границу или свой хост
-	if (this.checkCollision(newHead)) {
-		gameOver()
-		return
-	}
-
-	// добавляем новую голову в начало массива
-	this.segments.unshift(newHead)
-
-	// если новая голова соответсвует позиции яблока
-	if (newHead.equal(apple.position)) {
-		// увеличиваем счёт игрока
-		playerScore++
-		// перемещаем яблоко в случайное место
-		apple.move()
-	} else {
-		// иначе удаляем последнюю часть хвоста
-		this.segments.pop()
-	}
-}
-Shake.prototype.checkCollision = function (head) {
-	// true если змейка столкнётся с левой стеной
-	var leftCollision = (head.col === 0)
-	// true если змейка столкнётся с верхней стеной
-	var topCollision = (head.row === 0)
-	// true если змейка столкнётся с правой стеной
-	var rightCollision = (head.col === widthInBlocks - 1)
-	// true если змейка столкнётся с нижней стеной
-	var bottomCollision = (head.row === heightInBlocks - 1)
-
-	// столкнулась ли змейка с какой-нибудь из СТЕНОК
-	var wallCollision =
-		leftCollision ||
-		topCollision ||
-		rightCollision ||
-		bottomCollision;
-
-	// столкнулась ли змейка с собственным телом
-	// изначально false
-	var selfCollision = false
-
-	// проверка на то, находится ли голова змеи
-	// в каком-нибудь из сегментов змеи
-	for (segment of this.segments) {
-		if (head.equal(segment)) {
-			// если да, меняем значение на true (СТОЛКНУЛАСЬ)
-			selfCollision = true
-		}
-	}
-
-	// метод возвращает в итоге true если какая-то проверка прошла
-	// либо false если ни одна проверка не прошла
-	return wallCollision || selfCollision
-}
-Shake.prototype.setDirection = function (newDirection) {
-	var validDirections = {
-		"left": ["up", "down"],
-		"right": ["up", "down"],
-		"up": ["left", "right"],
-		"down": ["left", "right"],
-	}
-
-	if (validDirections[this.direction].includes(newDirection)) {
-		this.nextDirection = newDirection
-	}
-}
-var shake = new Shake()
-
-// Конструктор яблока
-function Apple() {
-
-}
+})
 
 
 
 /**
  * Рисует границу вокруг холста, равную 1 ячейке
- * - по умолчанию [blockSize=10]
+ * - по умолчанию 1 ячейка это [blockSize=20]
  * @date 09.03.2023 - 23:57:39
  */
 function drawBorder() {
@@ -237,7 +284,6 @@ function drawBorder() {
 /**
  * Рисует полную окружность
  * @date 07.03.2023 - 22:19:30
- *
  * @param {Number} x координаты по горизонтали
  * @param {Number} y координаты по вертикали
  * @param {Number} radius радиус окружности
@@ -267,22 +313,57 @@ function drawScore() {
 	ctx.fillStyle = "Black"
 	// выравнивание относительно базовой линии
 	ctx.textBaseline = "top"
+	// выравнивание текста по левой стороне
+	ctx.textAlign = "left";
 	// текст "Счёт:"
 	ctx.fillText("Счёт:", blockSize, blockSize)
+	ctx.fillText("Рекорд:", canvasHeight / 1.5, blockSize)
 	// всё что идёт дальше, будет красного цвета
 	ctx.fillStyle = "Red"
 	// текст "число очков"
-	ctx.fillText(playerScore, canvasHeight / 5.5, blockSize * 1.12)
+	ctx.fillText(playerScore, canvasHeight / 5, blockSize * 1.1)
+	ctx.fillText(playerRecord, canvasHeight / 1.14, blockSize * 1.1)
 }
 
 /**
- * Конец игры. Останавливает "анимацию" (сет-интервал)
- * и выводит надпись "Конец игры"
+ * Анимация игры 
+ * 1. Очищает холст
+ * 2. Рисует счёт
+ * 3. Передвигает змейку
+ * 4. Рисует змейку
+ * 5. Рисует яблоко
+ * 5. Рисует границу
+ * 6. Перезапускает саму себя каждые **animationTime** миллесекунд
+ * @date 11.03.2023 - 03:29:44
+ */
+function gameLoop() {
+	if (!gameStarted) return
+	// очищаем холст
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+	// нарисовать счёт
+	drawScore()
+	// текущее направление змеи
+	shake.move()
+	// нарисовать змею
+	shake.draw()
+	// нарисовать яблоко
+	apple.draw()
+	// нарисовать границу холста
+	drawBorder()
+	// функция перезапускается каждые animationTime миллисекунд
+	setTimeout(gameLoop, animationTime)
+}
+
+/**
+ * Конец игры. Останавливает "анимацию"
+ * и выводит сообщение о конце игры.
  * @date 10.03.2023 - 00:02:52
  */
 function gameOver() {
-	// останавливаем сет-интервал
-	clearInterval(intervalId)
+	// останавливаем игру
+	gameStarted = false
+	// текст будет поверх "игры"
+	ctx.globalCompositeOperation = "destination-over"
 	// задаём размера шрифта *3 от базового (canvasFont)
 	ctx.font = `${canvasFont * 3}px Courier`
 	// задаём цвет "Чёрный"
@@ -293,4 +374,38 @@ function gameOver() {
 	ctx.textBaseline = "middle"
 	// текст "Конец игры"
 	ctx.fillText("Конец игры", canvasWidth / 2, canvasHeight / 2)
+	ctx.font = `${canvasFont}px Courier`
+	ctx.fillText("Нажми чтобы продолжить", canvasWidth / 2, canvasHeight / 1.5)
+}
+
+/**
+ * Функция начала новой игры, когда закончена старая.
+ * 1. Создаёт новую змейку
+ * 2. Создаёт новое яблоко
+ * 3. Проверяет и обновляет рекорд
+ * 4. Восстанавливает изначальную скорость анимации (змейки в данном случае)
+ * 5. Обнуляет счёт
+ * 6. Запускает анимацию
+ * @date 11.03.2023 - 08:13:07
+ */
+function startGame() {
+	// Создаём новую змею
+	shake = new Shake();
+	// Создаём новое яблоко
+	apple = new Apple()
+
+	// если текущий счёт игрока больше чем текущий рекорд
+	if (playerScore > playerRecord) {
+		// устанавливаем новый рекорд, равный счёту игрока
+		playerRecord = playerScore
+	}
+
+	// восстанавливаем скорость
+	animationTime = setAnimationTime
+	// обнуляем счёт игрока
+	playerScore = 0
+	// игра начата
+	gameStarted = true
+	// запускаем игру
+	gameLoop()
 }
