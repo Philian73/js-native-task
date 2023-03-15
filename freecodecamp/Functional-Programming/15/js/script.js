@@ -115,7 +115,8 @@ const watchList = [
 ];
 
 function getRating(watchList) {
-	const filteredArr = watchList.filter(({ Director }) => Director === "Christopher Nolan")
+	const filteredArr = watchList
+		.filter(({ Director }) => Director === "Christopher Nolan")
 
 	return filteredArr
 		.reduce((acc, { imdbRating: rating }) =>
