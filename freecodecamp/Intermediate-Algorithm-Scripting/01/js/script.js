@@ -11,6 +11,7 @@ const sumAll = arr => {
 	return result
 }
 
+// не моё решение
 const sumAll2 = arr => {
 	const [first, last] = [...arr].sort((a, b) => a - b)
 	return first !== last
