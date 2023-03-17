@@ -1,25 +1,15 @@
-// https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/intermediate-algorithm-scripting/sum-all-numbers-in-a-range
+// https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/intermediate-algorithm-scripting/wherefore-art-thou
 
-const sumAll = arr => {
-	const [first, last] = [...arr].sort((a, b) => a - b)
-	let result = 0
-
-	for (let i = first; i <= last; i++) {
-		result += i
-	}
-
-	return result
+// очень сложно.... решил с подсказками
+function whatIsInAName(collection, source) {
+	return collection.filter(obj => {
+		for (let key in source) {
+			if (source[key] !== obj[key] && source.hasOwnProperty(key)) {
+				return false
+			}
+		}
+		return true
+	})
 }
 
-// не моё решение
-const sumAll2 = arr => {
-	const [first, last] = [...arr].sort((a, b) => a - b)
-	return first !== last
-		? first + sumAll2([first + 1, last])
-		: first
-}
-
-console.log(sumAll([4, 1]))
-console.log(sumAll([10, 5]))
-console.log(sumAll2([4, 1]))
-console.log(sumAll2([10, 5]))
+console.log(whatIsInAName([{ first: "Romeo", last: "Montague" }, { first: "Mercutio", last: null }, { first: "Tybalt", last: "Capulet" }], { last: "Capulet" }));
