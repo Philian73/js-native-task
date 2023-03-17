@@ -1,25 +1,18 @@
-// https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/intermediate-algorithm-scripting/sum-all-numbers-in-a-range
+// https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/intermediate-algorithm-scripting/seek-and-destroy
 
-const sumAll = arr => {
-	const [first, last] = [...arr].sort((a, b) => a - b)
-	let result = 0
+const destroyer = (arr, ...args) => arr.filter(el => !args.includes(el))
 
-	for (let i = first; i <= last; i++) {
-		result += i
-	}
-
-	return result
+// не моё решение, но надо бы почитать про Array.from и arguments
+function destroyer2(arr) {
+	const valsToRemove = Array.from(arguments).slice(1);
+	return arr.filter(function (val) {
+		return !valsToRemove.includes(val);
+	});
 }
 
-// не моё решение
-const sumAll2 = arr => {
-	const [first, last] = [...arr].sort((a, b) => a - b)
-	return first !== last
-		? first + sumAll2([first + 1, last])
-		: first
-}
-
-console.log(sumAll([4, 1]))
-console.log(sumAll([10, 5]))
-console.log(sumAll2([4, 1]))
-console.log(sumAll2([10, 5]))
+console.log(destroyer([1, 2, 3, 1, 2, 3], 2, 3))
+console.log(destroyer([1, 2, 3, 5, 1, 2, 3], 2, 3));
+console.log(destroyer([2, 3, 2, 3], 2, 3));
+console.log(destroyer2([1, 2, 3, 1, 2, 3], 2, 3))
+console.log(destroyer2([1, 2, 3, 5, 1, 2, 3], 2, 3));
+console.log(destroyer2([2, 3, 2, 3], 2, 3));
