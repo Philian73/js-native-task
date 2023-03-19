@@ -1,4 +1,4 @@
-// https://www.codewars.com/kata/57f8ff867a28db569e000c4a/javascript
+// https://www.codewars.com/kata/5287e858c6b5a9678200083c
 
 const narcissistic = value => value
 	.toString()
